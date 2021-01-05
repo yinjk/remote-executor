@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<!--begin code mirror -->
+<!-- Codemirror demo: https://cloud.tencent.com/developer/article/1084172 -->
+<!--下面两个是使用Code Mirror必须引入的-->
+<link rel="stylesheet" href="/codemirror/lib/codemirror.css"/>
+<script src="/codemirror/lib/codemirror.js"></script>
+<!--Java代码高亮必须引入-->
+<script src="/codemirror/mode/clike/clike.js"></script>
+
+<!--支持代码折叠-->
+<link rel="stylesheet" href="/codemirror/addon/fold/foldgutter.css"/>
+<link rel="stylesheet" href="/codemirror/theme/dracula.css"/>
+<link rel="stylesheet" href="/css/main.css"/>
+<script src="/codemirror/addon/fold/foldcode.js"></script>
+<script src="/codemirror/addon/fold/foldgutter.js"></script>
+<script src="/codemirror/addon/fold/brace-fold.js"></script>
+<script src="/codemirror/addon/fold/comment-fold.js"></script>
+<!--括号匹配-->
+<script src="/codemirror/addon/edit/matchbrackets.js"></script>
+
+<!--end Code Mirror -->
+
+<head>
+    <meta charset="utf-8"/>
+    <title>远程执行器</title>
+</head>
+<body>
+<!-- begin code -->
+<div style="position: absolute">
+    <form th:action="@{/execute}" method="post">
+        <input id="action" value="execute" style="display: none"/>
+        <textarea class="form-control" id="code" name="code"></textarea>
+        <div class="div-submit">
+            <button type="submit" class="button-submit">
+                <svg viewBox="0 0 24 24" width="1em" height="1em" class="css-1lc17o4-icon">
+                    <defs>
+                        <path id="play-arrow_svg__a" d="M8 5v14l11-7z"></path>
+                        <mask id="play-arrow_svg__b">
+                            <use fill-rule="evenodd" xlink:href="#play-arrow_svg__a"></use>
+                        </mask>
+                    </defs>
+                    <g fill-rule="evenodd">
+                        <use xlink:href="#play-arrow_svg__a"></use>
+                        <g fill-rule="nonzero" mask="url(#play-arrow_svg__b)">
+                            <path d="M0 0h24v24H0z"></path>
+                        </g>
+                    </g>
+                </svg>
+                <span>执行代码</span>
+            </button>
+        </div>
+    </form>
+</div>
+<div class="auto-fill" id="auto-fill">
+    <textarea readonly="readonly" class="output" id="output" th:text="${output}"></textarea>
+</div>
+
+<!--<textarea class="form-control auto-fill" id="output" name="output"></textarea>-->
+<!-- end code-->
+</div>
+
+</div>
+
+<script type="text/javascript" th:inline="javascript">
+    //根据DOM元素的id构造出一个编辑器
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode: "text/x-java", //实现Java代码高亮
+        lineNumbers: true,	//显示行号
+        indentUnit: 4, //缩进的宽度
+        tabSize: 4, //tab的宽度
+        theme: "dracula",	//设置主题
+        lineWrapping: true,	//代码折叠
+        foldGutter: true,
+        lineWiseCopyCut: true, //当没有选中时，ctrl + c复制光标所在行
+        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+        dragDrop: true, //是否允许拖放
+        matchBrackets: true	//括号匹配
+        //readOnly: true,        //只读
+    });
+
+    autoResize();
+    var code = [[${code}]];
+    if (code == null || code == "") {
+        //默认代码
+        code = "public class Test {\n" +
+            "    public static void main(String []args) {\n" +
+            "        \n" +
+            "    }\n" +
+            "}";
+    }
+    editor.setValue(code);    //代码框赋值
+    // document.getElementById("output").innerText = "Hello world!!";
+    // editor.setValue(obj.scriptCode);    //给代码框赋值
+
+    // editor.setOption("readOnly", true);
+    //监听浏览器缩放
+    window.onresize = function () {
+        autoResize();
+    };
+    window.addEventListener("keydown", function (e) {
+        //可以判断是不是mac，如果是mac,ctrl变为花键
+        //event.preventDefault() 方法阻止元素发生默认的行为。
+        if (e.keyCode === 83 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)) {
+            e.preventDefault();
+        }
+    }, false);
+
+    function autoResize() {
+        editor.setSize(window.innerWidth - 16, window.innerHeight * 0.7 - 16);     //设置代码框的长宽
+        document.getElementById("auto-fill").style.top = window.innerHeight * 0.7 - 8 + 'px';
+        document.getElementById("auto-fill").style.width = window.innerWidth - 26 + 'px';
+    }
+
+    // var output = CodeMirror.fromTextArea(document.getElementById("output"), {
+    //     theme: "dracula",	//设置主题
+    //     foldGutter: true,
+    //     lineWiseCopyCut: true, //当没有选中时，ctrl + c复制光标所在行
+    //     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+    //     dragDrop: true, //是否允许拖放
+    //     readOnly: true        //只读
+    // });
+    // output.setSize(window.innerWidth - 16, window.innerHeight * 0.2);
+
+</script>
+</body>
+</html>
