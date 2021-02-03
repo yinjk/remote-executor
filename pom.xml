@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.inori</groupId>
     <artifactId>remote-executor</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <name>remote-executor</name>
     <description>Remote java code executor project for Spring Boot</description>
 

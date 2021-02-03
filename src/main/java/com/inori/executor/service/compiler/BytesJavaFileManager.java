@@ -1,13 +1,10 @@
 package com.inori.executor.service.compiler;
 
-import javafx.animation.PauseTransitionBuilder;
+import com.inori.executor.service.executor.HotSwapClassLoader;
 
 import javax.tools.*;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URI;
-import java.security.SecureClassLoader;
 
 /**
  * BytesJavaFileManager
@@ -19,6 +16,8 @@ public class BytesJavaFileManager extends ForwardingJavaFileManager {
 
 
     private JavaClassObject output;
+
+    private ClassLoader classloader = new HotSwapClassLoader();
 
     /**
      * Creates a new instance of ForwardingJavaFileManager.
@@ -36,20 +35,25 @@ public class BytesJavaFileManager extends ForwardingJavaFileManager {
 
     @Override
     public ClassLoader getClassLoader(Location location) {
-        return new SecureClassLoader() {
-            @Override
-            protected Class<?> findClass(String name) throws ClassNotFoundException {
-                byte[] bytes = output.getBytes();
-                return super.defineClass(name, bytes, 0, bytes.length);
-            }
-        };
+        return new CompileClassLoader(output);
+//        return new SecureClassLoader() {
+//            {
+//            }
+//
+//
+//            @Override
+//            protected Class<?> findClass(String name) throws ClassNotFoundException {
+//                byte[] bytes = output.getBytes();
+//                return super.defineClass(name, bytes, 0, bytes.length);
+//            }
+//        };
     }
 
-        /**
-         * 获取编译之后的class字节码.
-         *
-         * @return class byte数组
-         */
+    /**
+     * 获取编译之后的class字节码.
+     *
+     * @return class byte数组
+     */
     public byte[] getCompiledBytes() {
         return output.getBytes();
     }
